@@ -15,3 +15,7 @@ So this is a Python script that ideally deploys a CloudFormation template with o
 - Runs through files, checking all versions available
 - Does some magic to sort out what is Mared and unmarked
 - Then deletes file versions and bucket
+
+#### Convenient uplaod file script (*update.py*) :
+- Run it to version a file (So far it's set up only for a txt file)
+- It'll be fancy in pushing an update to CloudFormation
