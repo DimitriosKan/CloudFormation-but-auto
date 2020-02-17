@@ -38,21 +38,20 @@ s3.put_bucket_versioning(
 # list buckets (so far it lsits all details on the ones available)
 print (s3.list_buckets())
 
-# print (s3.get_bucket_policy(Bucket=bname))
-
 # syntac for uploading files [from which file] [which bucket] [to file]
-file_up_resp = s3.upload_file('bucket-cf.yaml', bname, 'bucket-cf.yaml')
+s3.upload_file('./files/bucket-cf.yaml', bname, 'bucket-cf.yaml')
 
 
 # * remove after test *
-file_up_resp = s3.upload_file('test.txt', bname, 'test.txt')
+file_up_resp = s3.upload_file('./files/test.txt', bname, 'test.txt')
 
-f = open('test.txt', 'a')
+f = open('./files/test.txt', 'a')
 f.write('Good stuff')
 f.close()
 
-s3.upload_file('test.txt', bname, 'test.txt')
+s3.upload_file('./files/test.txt', bname, 'test.txt')
 # * remove after test *
+
 
 print (f'https://{bname}.s3.amazonaws.com/bucket-cf.yaml')
 
