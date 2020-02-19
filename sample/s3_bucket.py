@@ -1,5 +1,6 @@
 import boto3
 import json
+import time
 
 # resource works with create, but client is required by internal things like list and upload. Not sure exactly how that relates
 s3 = boto3.resource('s3')
@@ -18,6 +19,12 @@ class S3_Check:
         else:
             print ('Bucket not found')
             return False
+
+    def file_check(bname):
+        for key in s3cli.list_objects(Bucket=bname)['Contents']:
+            bucket_fname = key['Key']
+            print (f'Available files: {bucket_fname}')
+            return bucket_fname
 
 class S3_Delete:
     def delete_bucket(bname):
@@ -70,7 +77,7 @@ class S3_Delete:
                 #print ()
                 #print (f'Get only marked: {marked}')
 
-                
+                '''
                 # all this madness is because sometimes files are assigned
                 # a null value as their ID
                 # Not sure if it will work, but it might
@@ -81,9 +88,17 @@ class S3_Delete:
                         print (x['VersionId'])
                         things.append(x['VersionId'])
                     z = False
+                '''
 
                 # then we run through individual items
                 for x in versions:
+                    if x['Key'] == fil and x['VersionId']:
+                        # get the id string ...
+                        version_id = x['VersionId']
+                        print (f'Deleting {fil} version {version_id} ...')
+                        # and delete them 
+                        s3cli.delete_object(Bucket=bname, Key=fil, VersionId=version_id)
+                    '''
                     if len(things) > 1:
                         # filter them by below requirements
                         if x['Key'] == fil and x['VersionId'] != 'null':
@@ -101,6 +116,7 @@ class S3_Delete:
                             # and delete them
                             s3cli.delete_object(Bucket=bname, Key=fil, VersionId=version_id)
 
+                    '''
         print ()
         print (f'Deleting bucket {bname} ...')
 
@@ -108,7 +124,7 @@ class S3_Delete:
         s3cli.delete_bucket(Bucket=bname)
 
 class S3_Create:
-    def create_bucket(bname):
+    def create_bucket(bname, fname):
         print (f'Bucket {bname} is being created ...')
 
         # Bucket is the method to name your bucket, other one is to bypass error 
@@ -126,6 +142,9 @@ class S3_Create:
 
         bucket_policy = json.dumps(policy)
 
+        # sleep cuz it fails sumtimes ... dunno
+        time.sleep(3)
+
         # assign above defined policies
         s3cli.put_bucket_policy(
             Bucket=bname,
@@ -140,15 +159,15 @@ class S3_Create:
             }
         )
 
-        print ('Uploading template file ...')
+        print (f'Uploading template file {fname} ...')
         # syntac for uploading files [from which file] [which bucket] [to file]
-        s3cli.upload_file('./files/bucket-cf.yaml', bname, 'bucket-cf.yaml')
+        s3cli.upload_file(f'./files/{fname}', bname, f'{fname}')
 
         print ('Bucket URI (for manual CF use):')
-        print (f'https://{bname}.s3.amazonaws.com/bucket-cf.yaml')
+        print (f'https://{bname}.s3.amazonaws.com/{fname}')
 
 class S3_Update:
-    def update_files(bname):
+    def update_files(bname, fname):
         print ('Updating files ...')
 
-        s3cli.upload_file('./files/bucket-cf.yaml', bname, 'bucket-cf.yaml')
+        s3cli.upload_file(f'./files/{fname}', bname, f'{fname}')

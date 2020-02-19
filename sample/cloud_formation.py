@@ -13,23 +13,23 @@ class CF_Delete:
         # print (f'Stack deleted:\n{response}')
 
 class CF_Create:
-    def create_stack(stackname, bname):
+    def create_stack(stackname, bname, fname):
         print (f'Creating stack {stackname} from template in {bname}')
         
         response = client.create_stack(
             StackName=stackname,
-            TemplateURL=f'https://{bname}.s3.amazonaws.com/bucket-cf.yaml'
+            TemplateURL=f'https://{bname}.s3.amazonaws.com/{fname}'
         )
 
         # print (f'Stack created:\n{response}')
 
 class CF_Update:
-    def update_stack(stackname, bname):
+    def update_stack(stackname, bname, fname):
         print (f'Updating stack {stackname} from template in {bname}')
         
         response = client.update_stack(
             StackName=stackname,
-            TemplateURL=f'https://{bname}.s3.amazonaws.com/bucket-cf.yaml'
+            TemplateURL=f'https://{bname}.s3.amazonaws.com/{fname}'
         )
 
         # print (f'Stack updated:\n{response}')
@@ -47,7 +47,7 @@ class CF_State:
 
         for stack_id in response['StackEvents']:
             print (f"Stack '{stack_id['StackName']}': {stack_id['ResourceStatus']}")
-
+            return stack_id['ResourceStatus']
         # would be great if I can get the resources displayed as well
         '''
             if stack_id['ResourceProperties'] == str:

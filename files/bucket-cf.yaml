@@ -1,8 +1,39 @@
 ---
 Resources:
-  MyS3:
-    Type: AWS::S3::Bucket
+  Instance:
+    Type: AWS::EC2::Instance
     Properties:
-      AccessControl: PublicRead
-      BucketName: bucky-swaggins-more-less-updated-er-est-andmore-andevenmore
+      ImageId: ami-a4c7edb2
+      InstanceType: t2.micro
+      SecurityGroups:
+        - !Ref SSHSecurityGroup
+        - !Ref ServerSecurityGroup
 
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref Instance
+
+  SSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enables SSH access via port 22
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 22
+          ToPort: 22        
+          IpProtocol: tcp
+
+  ServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow connections from specified CIDR ranges
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          ToPort: 80
+          IpProtocol: tcp
+        - CidrIp: 192.168.1.1/0
+          FromPort: 22
+          ToPort: 22
+          IpProtocol: tcp
