@@ -1,6 +1,6 @@
 from sample.s3_bucket import S3_Create, S3_Update, S3_Check
-from sample.cloud_formation import CF_Create, CF_Update
-import os
+from sample.cloud_formation import CF_Create, CF_Update, CF_State
+import os, time
 
 bname = 'freshnewbucky'
 stackname = 'newstack'
@@ -42,6 +42,20 @@ def pick_file():
 
 def do_check():
     return S3_Check.check_bucket(bname)
+
+def check_state():
+    x = CF_State.get_stack_state(stackname)
+
+    # this thing is the logical ID to check
+    # when the id and stackname match
+    thing = x['LogicalResourceId']
+
+    # creating a nice dictionary to bundle
+    # state and stack name together
+    stack_state = {}
+    stack_state[x['StackName']] = x['ResourceStatus']
+
+    return stack_state, thing
 
 def create_bucket(fname):
     S3_Create.create_bucket(bname, fname)
@@ -87,3 +101,26 @@ if __name__ == "__main__":
             create_cloudformation()
     else:
         print ('Well ... This is an exception')
+
+    print ()
+
+    print ('Stack deployment status ...')
+
+    # First element is the dictionary with stackname (static) and state (dynamic)
+    # Second element is the current LogicalID (dynamic)
+    stack_state = check_state()
+    # print (f'Stack/State: {stack_state[0]}')
+    # print (f'Logical: {stack_state[1]}')
+
+    # what we getting at here is:
+    # while first key is stackname, check again ...
+    while list(stack_state[0].keys())[0] == stackname:
+        time.sleep(5)
+        #print (list(stack_state[0].keys())[0])
+        #print (stack_state[1])
+        stack_state = check_state()
+        # if the logical id matches the stackname and stack state becomes 'CREATE_COMPLETE'
+        # print and break
+        if stack_state[1] == stackname and stack_state[0][stackname] == 'CREATE_COMPLETE':
+            print ('Stack has been created !')
+            break
