@@ -124,3 +124,6 @@ if __name__ == "__main__":
         if stack_state[1] == stackname and stack_state[0][stackname] == 'CREATE_COMPLETE':
             print ('Stack has been created !')
             break
+        elif stack_state[1] == stackname and stack_state[0][stackname] == 'UPDATE_COMPLETE':
+            print ('Stack has been updated !')
+            break
